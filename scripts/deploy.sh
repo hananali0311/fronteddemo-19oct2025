@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==========================================
-# Unified Deployment Script (Final + Self-Healing + Auto Cleanup)
+# Unified Deployment Script (Stable + Safe)
 # ==========================================
 
 LOG_FILE="/var/log/deploy.log"
@@ -8,6 +8,13 @@ SOURCE_DIR="/tmp/deployment_temp"
 DEST_DIR="/var/www/html"
 
 echo "🚀 Starting deployment..." | tee -a $LOG_FILE
+
+# Step 0: Pre-clean any stale metadata (from *previous* deployments)
+if [ -d "/opt/codedeploy-agent/deployment-root" ]; then
+    echo "🧽 Cleaning up old CodeDeploy metadata from previous runs..." | tee -a $LOG_FILE
+    find /opt/codedeploy-agent/deployment-root/* -maxdepth 0 -type d -mtime +1 -exec rm -rf {} \; >> $LOG_FILE 2>&1
+    echo "✅ Old metadata cleanup complete." | tee -a $LOG_FILE
+fi
 
 # Step 1: Cleanup existing app files
 echo "🧹 Cleaning old deployment files in $DEST_DIR..." | tee -a $LOG_FILE
@@ -37,20 +44,16 @@ echo "✅ Permissions fixed." | tee -a $LOG_FILE
 echo "🎉 Deployment complete! Application is running." | tee -a $LOG_FILE
 touch /tmp/deploy_success.txt
 
-# Step 6: Restart CodeDeploy agent (to refresh)
+# Step 6: Restart CodeDeploy agent (optional refresh)
 echo "🔄 Restarting CodeDeploy agent for fresh sync..." | tee -a $LOG_FILE
 if systemctl list-units --type=service | grep -q codedeploy-agent; then
     systemctl restart codedeploy-agent >> $LOG_FILE 2>&1
-    echo "✅ CodeDeploy agent restarted successfully." | tee -a $LOG_FILE
+    sleep 10
+    echo "✅ CodeDeploy agent restarted and stable." | tee -a $LOG_FILE
 else
     echo "⚠️ CodeDeploy agent not found — skipping restart." | tee -a $LOG_FILE
 fi
 
-# Step 7: Cleanup old CodeDeploy deployment data
-echo "🧽 Cleaning old CodeDeploy metadata to prevent stuck states..." | tee -a $LOG_FILE
-rm -rf /opt/codedeploy-agent/deployment-root/* >> $LOG_FILE 2>&1
-echo "✅ Old CodeDeploy deployment data cleared." | tee -a $LOG_FILE
-
-# Step 8: Final confirmation and graceful exit
+# Step 7: Final confirmation and graceful exit
 echo "🏁 All tasks completed successfully. Exiting cleanly." | tee -a $LOG_FILE
 exit 0
