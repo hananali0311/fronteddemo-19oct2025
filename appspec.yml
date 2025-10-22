@@ -3,7 +3,7 @@ os: linux
 
 files:
   - source: /
-    destination: /var/www/html
+    destination: /tmp/deployment_temp
     overwrite: true
 
 hooks:
