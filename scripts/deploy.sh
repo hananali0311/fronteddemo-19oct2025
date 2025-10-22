@@ -21,6 +21,7 @@ echo "✅ Files moved successfully." | tee -a $LOG_FILE
 
 # Step 3: Install dependencies
 echo "📦 Installing dependencies..." | tee -a $LOG_FILE
+export DEBIAN_FRONTEND=noninteractive
 apt update -y >> $LOG_FILE 2>&1
 apt install -y apache2 php php-mysqli >> $LOG_FILE 2>&1
 systemctl enable apache2 >> $LOG_FILE 2>&1
@@ -34,3 +35,9 @@ echo "✅ Permissions fixed." | tee -a $LOG_FILE
 
 # Step 5: Done
 echo "🎉 Deployment complete! Application is running." | tee -a $LOG_FILE
+
+# Optional: Create a flag file to confirm success
+touch /tmp/deploy_success.txt
+
+# Exit cleanly so CodeDeploy marks success
+exit 0
