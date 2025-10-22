@@ -4,7 +4,7 @@ os: linux
 files:
   - source: /
     destination: /var/www/html
-    overwrite: true  # ensures existing files (like index.php) are replaced with new ones
+    overwrite: true
 
 permissions:
   - object: /var/www/html
@@ -17,6 +17,11 @@ permissions:
       - directory
 
 hooks:
+  BeforeInstall:
+    - location: scripts/cleanup.sh
+      timeout: 300
+      runas: root
+
   AfterInstall:
     - location: scripts/install_dependencies.sh
       timeout: 300
