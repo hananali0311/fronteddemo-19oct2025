@@ -23,7 +23,7 @@ echo "✅ Cleanup complete." | tee -a $LOG_FILE
 
 # Step 2: Copy new files from CodeDeploy temp folder
 echo "📂 Moving new files from $SOURCE_DIR to $DEST_DIR..." | tee -a $LOG_FILE
-cp -r $SOURCE_DIR/* $DEST_DIR/ || { echo "❌ File copy failed!" | tee -a $LOG_FILE; exit 1; }
+cp -rT $SOURCE_DIR $DEST_DIR || { echo "❌ File copy failed!" | tee -a $LOG_FILE; exit 1; }
 echo "✅ Files moved successfully." | tee -a $LOG_FILE
 
 # Step 3: Install dependencies
@@ -44,7 +44,7 @@ echo "✅ Permissions fixed." | tee -a $LOG_FILE
 echo "🎉 Deployment complete! Application is running." | tee -a $LOG_FILE
 touch /tmp/deploy_success.txt
 
-# Step 6: Restart CodeDeploy agent safely
+# Step 6: Conditional CodeDeploy agent restart
 echo "🔄 Restarting CodeDeploy agent for fresh sync..." | tee -a $LOG_FILE
 if systemctl list-units --type=service | grep -q codedeploy-agent; then
     systemctl restart codedeploy-agent >> $LOG_FILE 2>&1
@@ -54,6 +54,6 @@ else
     echo "⚠️ CodeDeploy agent not found — skipping restart." | tee -a $LOG_FILE
 fi
 
-# Step 7: Graceful exit
+# Step 7: Final confirmation and graceful exit
 echo "🏁 All tasks completed successfully. Exiting cleanly." | tee -a $LOG_FILE
 exit 0
