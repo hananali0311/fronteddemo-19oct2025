@@ -4,5 +4,5 @@ os: linux
 hooks:
   BeforeInstall:
     - location: scripts/deploy.sh
-      timeout: 600
+      timeout: 1800   # 30 minutes
       runas: root
