@@ -20,18 +20,32 @@ echo "✅ New files copied to /var/www/html." | tee -a $LOG_FILE
 # Step 3: Install required dependencies
 export DEBIAN_FRONTEND=noninteractive
 apt update -y >> $LOG_FILE 2>&1
-apt install -y apache2 php php-mysqli ruby >> $LOG_FILE 2>&1
+apt install -y apache2 php php-mysqli php-curl php-json php-zip ruby composer >> $LOG_FILE 2>&1
+
+# Step 4: Install AWS SDK via Composer
+cd $DEST_DIR
+curl -sS https://getcomposer.org/installer | php >> $LOG_FILE 2>&1
+php composer.phar require aws/aws-sdk-php >> $LOG_FILE 2>&1
+echo "✅ AWS SDK installed." | tee -a $LOG_FILE
+
+# Step 5: Start Apache
 systemctl enable apache2 >> $LOG_FILE 2>&1
 systemctl restart apache2 >> $LOG_FILE 2>&1
-echo "✅ Apache installed and restarted." | tee -a $LOG_FILE
+echo "✅ Apache restarted." | tee -a $LOG_FILE
 
-# Step 4: Fix permissions
+# Step 6: Fix permissions
 chown -R www-data:www-data $DEST_DIR
 chmod -R 755 $DEST_DIR
 echo "✅ File permissions fixed." | tee -a $LOG_FILE
 
-# Step 5: Finish deployment
-echo "🎉 Deployment successful!" | tee -a $LOG_FILE
-touch /tmp/deploy_success.txt
+# Step 7: Verify deployment
+curl -f http://localhost/ > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+    echo "🎉 Deployment successful! Application is serving." | tee -a $LOG_FILE
+else
+    echo "❌ Deployment failed! Application not accessible." | tee -a $LOG_FILE
+    exit 1
+fi
 
+touch /tmp/deploy_success.txt
 exit 0
