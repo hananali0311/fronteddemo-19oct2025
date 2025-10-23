@@ -1,12 +1,17 @@
 version: 0.0
 os: linux
 
+hooks:
+  BeforeInstall:
+    - location: scripts/pre_cleanup.sh
+      timeout: 120
+      runas: root
+
 files:
   - source: /
-    destination: /tmp/deployment_temp
+    destination: /opt/new_deploy
     overwrite: true
 
-hooks:
   AfterInstall:
     - location: scripts/deploy.sh
       timeout: 600
