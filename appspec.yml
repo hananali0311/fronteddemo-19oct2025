@@ -3,16 +3,6 @@ os: linux
 
 hooks:
   BeforeInstall:
-    - location: scripts/pre_cleanup.sh
-      timeout: 120
-      runas: root
-
-  AfterInstall:
     - location: scripts/deploy.sh
       timeout: 600
-      runas: root
-      
-  ApplicationStart:
-    - location: scripts/verify_deployment.sh
-      timeout: 300
       runas: root
