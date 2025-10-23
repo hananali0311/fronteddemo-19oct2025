@@ -1,11 +1,6 @@
 version: 0.0
 os: linux
 
-files:
-  - source: /
-    destination: /opt/new_deploy
-    overwrite: true
-
 hooks:
   BeforeInstall:
     - location: scripts/pre_cleanup.sh
