@@ -1,22 +1,22 @@
 #!/bin/bash
-# ==========================================
-# Pre-cleanup Script for CodeDeploy
-# ==========================================
+# =====================================
+# Pre-Cleanup Script (BeforeInstall)
+# =====================================
 
-LOG_FILE="/var/log/deploy_cleanup.log"
+LOG_FILE="/var/log/pre_cleanup.log"
+
 echo "🧹 Starting pre-cleanup..." | tee -a $LOG_FILE
 
-# Stop Apache safely if running
-if systemctl is-active --quiet apache2; then
-    systemctl stop apache2
-    echo "✅ Apache stopped." | tee -a $LOG_FILE
-fi
+# Stop Apache gracefully
+systemctl stop apache2 >/dev/null 2>&1 || true
 
-# Remove previous deployment data and old temp folders
-rm -rf /opt/codedeploy-agent/deployment-root/* >> $LOG_FILE 2>&1
-rm -rf /opt/new_deploy >> $LOG_FILE 2>&1
-rm -rf /tmp/deployment_temp >> $LOG_FILE 2>&1
-rm -rf /var/www/html/* >> $LOG_FILE 2>&1
+# Remove old deployment directories safely
+rm -rf /opt/new_deploy || true
+rm -rf /var/www/html || true
 
-echo "✅ Pre-cleanup done." | tee -a $LOG_FILE
+# Recreate clean directories
+mkdir -p /opt/new_deploy
+mkdir -p /var/www/html
+
+echo "✅ Cleanup complete. Fresh environment ready for new deployment." | tee -a $LOG_FILE
 exit 0
