@@ -1,5 +1,5 @@
 <?php
-// require 'vendor/autoload.php'; // AWS SDK for PHP
+ require 'vendor/autoload.php'; // AWS SDK for PHP
 
 use Aws\SecretsManager\SecretsManagerClient;
 use Aws\Exception\AwsException;
